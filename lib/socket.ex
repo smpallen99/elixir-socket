@@ -258,7 +258,7 @@ defmodule Socket do
   defdelegate close(self), to: Socket.Protocol
   defbang close(self), to: Socket.Protocol
 
-  @on_load :uris
+  # @on_load :uris
 
   @doc false
   def uris do
