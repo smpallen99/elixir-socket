@@ -177,57 +177,31 @@ defmodule Socket do
         [{ :active, false } | args]
     end
 
-    args = if Keyword.has_key?(options, :route) do
-      [{ :dontroute, !Keyword.get(options, :route) } | args]
-    else
-      args
-    end
+    # args = if Keyword.has_key?(options, :route) do
+    #   [{ :dontroute, !Keyword.get(options, :route) } | args]
+    # else
+    #   args
+    # end
 
-    args = if Keyword.get(options, :reuseaddr) do
-      [{ :reuseaddr, true } | args]
-    else
-      args
-    end
-
-    args = if linger = Keyword.get(options, :linger) do
-      [{ :linger, { true, linger } } | args]
-    else
-      args
-    end
-
-    args = if priority = Keyword.get(options, :priority) do
-      [{ :priority, priority } | args]
-    else
-      args
-    end
-
-    args = if tos = Keyword.get(options, :tos) do
-      [{ :tos, tos } | args]
-    else
-      args
-    end
+    args = args
+    |> add_option(options, :route, { :dontroute, !Keyword.get(options, :route) })
+    |> add_option(options, :reuseaddr, { :reuseaddr, true })
+    |> add_option(options, :linger, { :linger, { true, Keyword.get(options, :linger) } })
+    |> add_option(options, :priority, { :priority, Keyword.get(options, :priority) })
+    |> add_option(options, :tos, { :tos, Keyword.get(options, :tos) })
 
     args = if send = Keyword.get(options, :send) do
       args = case Keyword.get(send, :timeout) do
         { timeout, :close } ->
           [{ :send_timeout, timeout }, { :send_timeout_close, true } | args]
 
-        timeout when timeout |> is_integer ->
+        timeout when is_integer(timeout) ->
           [{ :send_timeout, timeout } | args]
       end
 
-      args = if delay = Keyword.get(send, :delay) do
-        [{ :delay_send, delay } | args]
-      else
-        args
-      end
-
-      args = if buffer = Keyword.get(send, :buffer) do
-        [{ :sndbuf, buffer } | args]
-      else
-        args
-      end
-      args
+      args = args
+      |> add_option(send, :delay, { :delay_send, Keyword.get(send, :delay) })
+      |> add_option(send, :buffer, { :sndbuf, Keyword.get(send, :buffer) })
     else
       args
     end
@@ -238,6 +212,14 @@ defmodule Socket do
       else
         args
       end
+    else
+      args
+    end
+  end
+
+  defp add_option(args, options, option, config) do
+    if Keyword.has_key?(options, option) do
+      [config | args]
     else
       args
     end
