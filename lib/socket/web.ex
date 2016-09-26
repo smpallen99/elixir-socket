@@ -813,7 +813,7 @@ defmodule Socket.Web do
   """
   @spec ping(t)         :: :ok | { :error, error }
   @spec ping(t, binary) :: :ok | { :error, error }
-  def ping(self, cookie \\ :crypto.rand_bytes(32)) do
+  def ping(self, cookie \\ :crypto.strong_rand_bytes(32)) do
     case send(self, { :ping, cookie }) do
       :ok ->
         cookie
@@ -828,7 +828,7 @@ defmodule Socket.Web do
   """
   @spec ping!(t)         :: :ok | no_return
   @spec ping!(t, binary) :: :ok | no_return
-  def ping!(self, cookie \\ :crypto.rand_bytes(32)) do
+  def ping!(self, cookie \\ :crypto.strong_rand_bytes(32)) do
     send!(self, { :ping, cookie })
 
     cookie
